@@ -97,35 +97,65 @@
   [props config-valid configs]
   "apps.data-info.base-url" "http://data-info:60000")
 
+;;;;; RESOURCE LIMITS
+
+;; Binary gigabyte, as used by Condor etc.
+(def gibibyte (* 1024 1024 1024))
+
+;; system limits
+(cc/defprop-optint tool-memory-limit
+  "The maximum memory limit, in bytes, that a tool may use (the system maximum)"
+  [props config-valid configs]
+  "apps.tools.memory-limit" (* 32 gibibyte))
+
+(cc/defprop-optlong tool-max-cpu-cores
+  "The maximum number of max cpu cores that a tool may use (the system maximum)"
+  [props config-valid configs]
+  "apps.tools.max-cpu-cores" 16.0)
+
+;; private tool limits and combined limit+defaults
 (cc/defprop-optint private-tool-time-limit-seconds
-  "The time limit to use when adding new private tools."
+  "The time limit to use when adding new private tools. (combined default+maximum)"
   [props config-valid configs]
   "apps.tools.private.time-limit-seconds" (* 24 60 60)) ;; 24 hours
 
 (cc/defprop-optint private-tool-pids-limit
-  "The PIDs limit to use when adding new private tools."
+  "The PIDs limit to use when adding new private tools. (combined default+maximum)"
   [props config-valid configs]
   "apps.tools.private.pids-limit" 64)
 
 (cc/defprop-optint private-tool-memory-limit
-  "The memory limit, in bytes, to use when adding new private tools."
+  "The maximum memory allowed for a private tool (the private tool maximum)"
   [props config-valid configs]
-  "apps.tools.private.memory-limit" (* 16 1024 1024 1024)) ;; 16GB
+  "apps.tools.private.memory-limit" (* 16 gibibyte))
 
 (cc/defprop-optlong private-tool-max-cpu-cores
-  "The number of cpu cores to use when adding new private tools"
+  "The maximum number of CPU cores allowed for a private tool (the private tool maximum)"
   [props config-valid configs]
   "apps.tools.private.max-cpu-cores" 4.0)
 
-(cc/defprop-optint tool-memory-limit
-  "The maximum memory limit, in bytes, that a (private) tool may be created with"
+;; default values
+(cc/defprop-optint private-tool-memory-limit-default
+  "The memory limit, in bytes, to use as the default value for private tools when launching analyses or adding new tools."
   [props config-valid configs]
-  "apps.tools.memory-limit" (* 32 1024 1024 1024)) ;; 32GB
+  "apps.tools.private.memory-limit-default" (* 16 gibibyte))
 
-(cc/defprop-optlong tool-max-cpu-cores
-  "The maximum number of max cpu cores that a (private) tool may be created with"
+(cc/defprop-optlong private-tool-max-cpu-cores-default
+  "The number of CPU cores to use as the default value for private tools when launching analyses or adding new tools."
   [props config-valid configs]
-  "apps.tools.max-cpu-cores" 16.0)
+  "apps.tools.private.max-cpu-cores-default" 4.0)
+
+(cc/defprop-optint public-tool-memory-limit-default
+  "The memory limit, in bytes, to use as the default value for public tools when launching analyses or adding new tools."
+  [props config-valid configs]
+  "apps.tools.public.memory-limit-default" (* 16 gibibyte))
+
+(cc/defprop-optlong public-tool-max-cpu-cores-default
+  "The number of CPU cores to use as the default value for public tools when launching analyses or adding new tools."
+  [props config-valid configs]
+  "apps.tools.public.max-cpu-cores-default" 4.0)
+
+;;;;; (end resource limits)
 
 (cc/defprop-optstr workspace-root-app-category
   "The name of the root app category in a user's workspace."
